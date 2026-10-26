@@ -1,4 +1,3 @@
-
 module top #(
     parameter DWELL_BITS = 14,
     parameter DB_N       = 19,
@@ -7,12 +6,19 @@ module top #(
 )(
     input  logic       clk,
     input  logic [3:0] row,
+
+    // Botones fisicos de la Tang Nano 9K
+    input  logic       s1,
+    input  logic       s2,
+
     output logic [3:0] col,
     output logic [6:0] seg,
     output logic [3:0] dig
 );
 
+    // ---------------------------------------------------------
     // Reinicio inicial
+    // ---------------------------------------------------------
     logic [3:0] por = 4'd0;
 
     always_ff @(posedge clk) begin
@@ -23,7 +29,10 @@ module top #(
     logic rst;
     assign rst = ~(&por);
 
+
+    // ---------------------------------------------------------
     // Teclado y antirrebote
+    // ---------------------------------------------------------
     logic key_down;
     logic db_level;
     logic db_tick;
@@ -50,7 +59,53 @@ module top #(
         .db_tick(db_tick)
     );
 
+
+    // ---------------------------------------------------------
+    // Antirrebote de los botones fisicos S1 y S2
+    //
+    // Los botones son activos en nivel bajo:
+    // presionado = 0
+    // liberado   = 1
+    // ---------------------------------------------------------
+    logic s1_level;
+    logic s1_tick;
+
+    logic s2_level;
+    logic s2_tick;
+
+    debounce #(
+        .N(DB_N)
+    ) u_db_s1 (
+        .clk(clk),
+        .reset(rst),
+        .sw(~s1),
+        .db_level(s1_level),
+        .db_tick(s1_tick)
+    );
+
+    debounce #(
+        .N(DB_N)
+    ) u_db_s2 (
+        .clk(clk),
+        .reset(rst),
+        .sw(~s2),
+        .db_level(s2_level),
+        .db_tick(s2_tick)
+    );
+
+
+    // ---------------------------------------------------------
+    // Deteccion de la tecla *
+    // Codigo hexadecimal de * = 14
+    // ---------------------------------------------------------
+    logic star_tick;
+
+    assign star_tick = db_tick && (key_code == 4'd14);
+
+
+    // ---------------------------------------------------------
     // Operandos y control
+    // ---------------------------------------------------------
     logic [9:0] operando_a;
     logic [9:0] operando_b;
 
@@ -64,75 +119,174 @@ module top #(
     logic negativo;
     logic listo;
 
-    // Registro de operandos y selección de visualización
+    // Indica si ya se calculo la resta actual
+    logic resultado_calculado;
+
+
+    // ---------------------------------------------------------
+    // Registro de operandos y control de visualizacion
+    // ---------------------------------------------------------
     always_ff @(posedge clk or posedge rst) begin
         if (rst) begin
             operando_a <= 10'd0;
             operando_b <= 10'd0;
+
             cantidad_a <= 2'd0;
             cantidad_b <= 2'd0;
+
             seleccion <= 1'b0;
             modo_display <= 2'd0;
-        end else if (db_tick) begin
 
-            // Tecla A: seleccionar y limpiar operando A
-            if (key_code == 4'd10) begin
+            resultado_calculado <= 1'b0;
+        end else begin
+
+            // -------------------------------------------------
+            // S1: seleccionar y limpiar el operando A
+            // -------------------------------------------------
+            if (s1_tick) begin
                 seleccion <= 1'b0;
+
                 operando_a <= 10'd0;
                 cantidad_a <= 2'd0;
+
                 modo_display <= 2'd0;
+                resultado_calculado <= 1'b0;
             end
 
-            // Tecla B: seleccionar y limpiar operando B
-            else if (key_code == 4'd11) begin
+            // -------------------------------------------------
+            // S2: seleccionar y limpiar el operando B
+            // -------------------------------------------------
+            else if (s2_tick) begin
                 seleccion <= 1'b1;
+
                 operando_b <= 10'd0;
                 cantidad_b <= 2'd0;
+
                 modo_display <= 2'd1;
+                resultado_calculado <= 1'b0;
             end
 
-            // Cambiar modo de visualización
-            else if (key_code == 4'd13) begin
-                if (modo_display == 2'd2)
+            // -------------------------------------------------
+            // Tecla *: calcular la resta y cambiar la pantalla
+            //
+            // Primera pulsacion:
+            //     calcula A - B y muestra el resultado.
+            //
+            // Pulsaciones siguientes:
+            //     resultado -> A -> B -> resultado
+            // -------------------------------------------------
+            else if (star_tick) begin
+
+                if (!resultado_calculado) begin
+                    modo_display <= 2'd2;
+                    resultado_calculado <= 1'b1;
+                end else begin
+
+                    case (modo_display)
+
+                        // Resultado -> A
+                        2'd2: begin
+                            modo_display <= 2'd0;
+                        end
+
+                        // A -> B
+                        2'd0: begin
+                            modo_display <= 2'd1;
+                        end
+
+                        // B -> resultado
+                        2'd1: begin
+                            modo_display <= 2'd2;
+                        end
+
+                        default: begin
+                            modo_display <= 2'd2;
+                        end
+
+                    endcase
+                end
+            end
+
+            // -------------------------------------------------
+            // Procesamiento del teclado
+            // -------------------------------------------------
+            else if (db_tick) begin
+
+                // Tecla A: seleccionar y limpiar operando A
+                // Se conserva como alternativa al boton S1.
+                if (key_code == 4'd10) begin
+                    seleccion <= 1'b0;
+
+                    operando_a <= 10'd0;
+                    cantidad_a <= 2'd0;
+
                     modo_display <= 2'd0;
-                else
-                    modo_display <= modo_display + 1'b1;
-            end
-
-            // Manejo explícito de la tecla 9
-            else if (key_code == 4'd9) begin
-                if (!seleccion && cantidad_a < 2'd3) begin
-                    operando_a <= operando_a * 10'd10 + 10'd9;
-                    cantidad_a <= cantidad_a + 1'b1;
-                end else if (seleccion && cantidad_b < 2'd3) begin
-                    operando_b <= operando_b * 10'd10 + 10'd9;
-                    cantidad_b <= cantidad_b + 1'b1;
+                    resultado_calculado <= 1'b0;
                 end
-            end
 
-            // Manejo de las teclas del 0 al 8
-            else if (key_code <= 4'd8) begin
-                if (!seleccion && cantidad_a < 2'd3) begin
-                    operando_a <= operando_a * 10'd10 + key_code;
-                    cantidad_a <= cantidad_a + 1'b1;
-                end else if (seleccion && cantidad_b < 2'd3) begin
-                    operando_b <= operando_b * 10'd10 + key_code;
-                    cantidad_b <= cantidad_b + 1'b1;
+                // Tecla B: seleccionar y limpiar operando B
+                // Se conserva como alternativa al boton S2.
+                else if (key_code == 4'd11) begin
+                    seleccion <= 1'b1;
+
+                    operando_b <= 10'd0;
+                    cantidad_b <= 2'd0;
+
+                    modo_display <= 2'd1;
+                    resultado_calculado <= 1'b0;
                 end
-            end
 
-            // Tecla C: mostrar resultado
-            else if (key_code == 4'd12) begin
-                modo_display <= 2'd2;
+                // Tecla D: cambiar modo de visualizacion
+                else if (key_code == 4'd13) begin
+                    if (modo_display == 2'd2)
+                        modo_display <= 2'd0;
+                    else
+                        modo_display <= modo_display + 1'b1;
+                end
+
+                // Manejo explícito de la tecla 9
+                else if (key_code == 4'd9) begin
+                    if (!seleccion && cantidad_a < 2'd3) begin
+                        operando_a <= operando_a * 10'd10 + 10'd9;
+                        cantidad_a <= cantidad_a + 1'b1;
+                    end else if (seleccion && cantidad_b < 2'd3) begin
+                        operando_b <= operando_b * 10'd10 + 10'd9;
+                        cantidad_b <= cantidad_b + 1'b1;
+                    end
+                end
+
+                // Manejo de las teclas del 0 al 8
+                else if (key_code <= 4'd8) begin
+                    if (!seleccion && cantidad_a < 2'd3) begin
+                        operando_a <= operando_a * 10'd10 + key_code;
+                        cantidad_a <= cantidad_a + 1'b1;
+                    end else if (seleccion && cantidad_b < 2'd3) begin
+                        operando_b <= operando_b * 10'd10 + key_code;
+                        cantidad_b <= cantidad_b + 1'b1;
+                    end
+                end
+
+                // Tecla C: mostrar el resultado si ya se calculo
+                else if (key_code == 4'd12) begin
+                    if (resultado_calculado)
+                        modo_display <= 2'd2;
+                end
+
+                // La tecla * se procesa mediante star_tick.
+                // No se utiliza aqui para evitar duplicar acciones.
             end
         end
     end
 
-    // Módulo de resta
+
+    // ---------------------------------------------------------
+    // Modulo de resta
+    // La operacion se inicia con la tecla *
+    // ---------------------------------------------------------
     resta_aritmetica u_resta (
         .clk(clk),
         .rst(rst),
-        .valid_i(db_tick && (key_code == 4'd12)),
+        .valid_i(star_tick && !resultado_calculado),
         .operando_a_i(operando_a),
         .operando_b_i(operando_b),
         .resultado_o(resultado),
@@ -140,7 +294,10 @@ module top #(
         .listo_o(listo)
     );
 
-    // Selección del número que se mostrará
+
+    // ---------------------------------------------------------
+    // Seleccion del numero que se mostrara
+    // ---------------------------------------------------------
     logic [3:0] centenas;
     logic [3:0] decenas;
     logic [3:0] unidades;
@@ -158,7 +315,10 @@ module top #(
         unidades = numero_mostrado % 10'd10;
     end
 
-    // Multiplexación del display
+
+    // ---------------------------------------------------------
+    // Multiplexacion del display
+    // ---------------------------------------------------------
     logic [15:0] scan_counter;
     logic [1:0] scan_sel;
     logic [3:0] digito_actual;
@@ -180,7 +340,8 @@ module top #(
         dig_on = 4'b0000;
 
         case (scan_sel)
-            // Dígito de signo
+
+            // Digito de signo
             2'd0: begin
                 if ((modo_display == 2'd2) && negativo)
                     seg_on = 7'b1000000;
@@ -210,10 +371,14 @@ module top #(
                 seg_on = decodificar_7seg(digito_actual);
                 dig_on = 4'b1000;
             end
+
         endcase
     end
 
+
+    // ---------------------------------------------------------
     // Decodificador de siete segmentos
+    // ---------------------------------------------------------
     function automatic logic [6:0] decodificar_7seg(
         input logic [3:0] n
     );
@@ -232,7 +397,10 @@ module top #(
         endcase
     endfunction
 
-    // Salidas físicas del display
+
+    // ---------------------------------------------------------
+    // Salidas fisicas del display
+    // ---------------------------------------------------------
     always_ff @(posedge clk or posedge rst) begin
         if (rst) begin
             seg <= SEG_ACTIVE_LOW ? 7'b1111111 : 7'b0000000;
