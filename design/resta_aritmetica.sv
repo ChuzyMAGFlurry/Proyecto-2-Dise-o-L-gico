@@ -1,4 +1,3 @@
-
 module resta_aritmetica (
     input  logic       clk,
     input  logic       rst,
@@ -14,14 +13,15 @@ module resta_aritmetica (
     logic [10:0] magnitud;
 
     // A - B = A + complemento a 2 de B.
-    // No se utiliza el operador de resta.
     always_comb begin
         resta_complemento =
             {1'b0, operando_a_i}
             + (~{1'b0, operando_b_i})
             + 11'd1;
 
-        if (resta_complemento[10])
+        // Se usa comparación numérica en lugar de selectores de bit [10] 
+        // para garantizar compatibilidad total con Icarus Verilog.
+        if (resta_complemento >= 11'd1024)
             magnitud = ~resta_complemento + 11'd1;
         else
             magnitud = resta_complemento;
@@ -39,7 +39,7 @@ module resta_aritmetica (
 
             if (valid_i) begin
                 resultado_o <= magnitud[9:0];
-                negativo_o  <= resta_complemento[10];
+                negativo_o  <= (resta_complemento >= 11'd1024);
             end
         end
     end
