@@ -1,19 +1,5 @@
 // -----------------------------------------------------------------------------
-// Modulo 2: Lectura de teclado matricial 4x4 por barrido de columnas
-//
-// Conexion electrica (hoja de datos Grayhill serie 96, matriz 4x4, sin resistencias):
-//   terminales 1..4 = FILAS    (tecla n conecta terminal fila + terminal columna)
-//   terminales 5..8 = COLUMNAS
-// Las FILAS son entradas de la FPGA con pull-up (3.3 V). Las COLUMNAS se barren:
-// una columna a la vez se lleva a 0 y las demas quedan en alta impedancia (Z).
-// Si una tecla esta presionada, su fila se lee en 0 mientras su columna esta activa.
-// Nunca se aplican mas de 3.3 V al teclado.
-//
-// Al encontrar una tecla el barrido se DETIENE (hold) y key_down=1 mientras siga
-// presionada; esa senal es la que entra al antirrebote. key_code queda estable.
-//
-// Mapa de teclas (leyenda): 1 2 3 A / 4 5 6 B / 7 8 9 C / * 0 # D
-// key_code: 0-9 = digitos, 10=A, 11=B, 12=C, 13=D, 14='*', 15='#'
+// Modulo 2: Decodificador y Control de Display de 7 Segmentos (Corregido)
 // -----------------------------------------------------------------------------
 module DecodificadorDisplay #(
     parameter SEG_ACTIVE_LOW = 0,
@@ -28,8 +14,9 @@ module DecodificadorDisplay #(
     output logic [9:0]  value
 );
     // ---------------- captura, binario y BCD ----------------
-    logic is_digit = ~key_code[3] | ~(key_code[2] | key_code[1]);
-    logic is_clear = (key_code == 4'd14);
+    // CORRECCIÓN: Se usa 'wire' para que la lógica sea combinacional y se actualice con key_code
+    wire is_digit = ~key_code[3] | ~(key_code[2] | key_code[1]);
+    wire is_clear = (key_code == 4'd14);
 
     logic [1:0] count;
     logic [3:0] d2, d1, d0;   // centenas, decenas, unidades (BCD)
