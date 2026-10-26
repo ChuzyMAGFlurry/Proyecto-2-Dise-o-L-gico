@@ -166,3 +166,14 @@ module top #(
     output logic [6:0] seg,
     output logic [3:0] dig
 );
+#### Testbenchs:
+Pruebas para el Antirebote:
+<img width="1600" height="579" alt="WhatsApp Image 2026-10-26 at 4 09 18 PM" src="https://github.com/user-attachments/assets/31a3abf5-ee45-418a-bf27-ba3d926ea572" />
+<img width="1374" height="714" alt="WhatsApp Image 2026-10-26 at 4 05 27 PM" src="https://github.com/user-attachments/assets/33ebc64a-8eae-4910-8ae1-a069a744b483" />
+Pruebas para el escaneo del teclado:
+<img width="1600" height="664" alt="WhatsApp Image 2026-10-26 at 4 16 32 PM (1)" src="https://github.com/user-attachments/assets/a24f56eb-9034-4189-81b6-eff208845ffa" />
+<img width="1312" height="538" alt="WhatsApp Image 2026-10-26 at 4 16 13 PM (1)" src="https://github.com/user-attachments/assets/86fb481b-330f-4413-8d96-72bc88d2eaf2" />
+Pruebas para el decodificador:
+<img width="1600" height="536" alt="WhatsApp Image 2026-10-26 at 4 34 52 PM (1)" src="https://github.com/user-attachments/assets/0f19f64f-e160-4f28-827d-03fbde1f0337" />
+<img width="1357" height="393" alt="WhatsApp Image 2026-10-26 at 4 34 52 PM" src="https://github.com/user-attachments/assets/2010d381-ed25-4185-a05d-689ec3e04fa6" />
+
