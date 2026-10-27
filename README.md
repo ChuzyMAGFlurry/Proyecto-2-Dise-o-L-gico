@@ -199,3 +199,51 @@ Prueba del top (de todo):
 <img width="1159" height="223" alt="WhatsApp Image 2026-10-26 at 5 05 40 PM" src="https://github.com/user-attachments/assets/23d63a04-e0d6-4dfb-a081-fc08e486edf5" />
 <img width="1600" height="551" alt="WhatsApp Image 2026-10-26 at 5 05 11 PM" src="https://github.com/user-attachments/assets/9dc33008-a9e6-471c-82f2-2086fe668418" />
 
+
+## 5. Consumo de Recursos
+=== top ===
+
+   Number of wires:               3305
+   Number of wire bits:           7203
+   Number of public wires:        3305
+   Number of public wire bits:    7203
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:               4903
+     ALU                          1110
+     DFFC                           98
+     DFFCE                          52
+     DFFE                            4
+     DFFP                            8
+     GND                             1
+     IBUF                            7
+     LUT1                         1401
+     LUT2                          264
+     LUT3                          338
+     LUT4                          180
+     MUX2_LUT5                     789
+     MUX2_LUT6                     372
+     MUX2_LUT7                     176
+     MUX2_LUT8                      87
+     OBUF                           11
+     TBUF                            4
+     VCC                             1
+
+## 6. Problemas encontrados durante el proyecto
+Primero, tuvimos problemas con el teclado, una vez teníamos todo realizado, surgió un problema con el teclado mecánico, ya que el pin asociado de la 4ta columna se debió haber herrumbrado, y realizando diversas pruebas como cambio de pines, etc. ninguna de las letras respondió al input. De igual manera, por alguna razón la 3ra fila y 3ra columna (tecla 9) no funcionaba de forma correcta, al inicio durante la creación del debounce estaba dando problemas ya que tenia mal configurada la frecuencia, y para el caso del Top, este número no estaba siendo recibido por el display, provocando que se cambiara gran parte del código solamente para el funcionamiento de este.
+En cuanto a los ejercicios, la dificultad radico en el uso del equipo, como fue las puntas atenuadoras, 10:1, y el analizador lógico, ya que, este equipo al tener diferencias a un osciloscopio, se tardó más de lo esperado para los resultados.
+
+## 7. Apéndices: 
+### Apéndice 1:
+Con esta fórmula se puede obtener el total de la resta aritmética 
+Para números de tres dígitos:
+   A-B=A+(1000-B)
+o bien: 
+   A-B=A+(B negado)+1
+### Apéndice 2:
+BITACORA JORGE CHAVARRIA MATA
+
+
+
+BITACORA DEREK ROJAS CAMACHO
