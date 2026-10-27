@@ -195,4 +195,7 @@ Pruebas para el decodificador:
 Prueba de la resta:
 <img width="1600" height="551" alt="WhatsApp Image 2026-10-26 at 5 05 11 PM" src="https://github.com/user-attachments/assets/9f7b78c1-d8b2-4af4-a64e-aedd09310195" />
 <img width="1159" height="223" alt="WhatsApp Image 2026-10-26 at 5 05 40 PM" src="https://github.com/user-attachments/assets/ac07e127-8118-40d5-ac08-5c0ea102ce68" />
+Prueba del top (de todo):
+<img width="1159" height="223" alt="WhatsApp Image 2026-10-26 at 5 05 40 PM" src="https://github.com/user-attachments/assets/23d63a04-e0d6-4dfb-a081-fc08e486edf5" />
+<img width="1600" height="551" alt="WhatsApp Image 2026-10-26 at 5 05 11 PM" src="https://github.com/user-attachments/assets/9dc33008-a9e6-471c-82f2-2086fe668418" />
 
