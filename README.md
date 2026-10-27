@@ -176,4 +176,7 @@ Pruebas para el escaneo del teclado:
 Pruebas para el decodificador:
 <img width="1600" height="536" alt="WhatsApp Image 2026-10-26 at 4 34 52 PM (1)" src="https://github.com/user-attachments/assets/0f19f64f-e160-4f28-827d-03fbde1f0337" />
 <img width="1357" height="393" alt="WhatsApp Image 2026-10-26 at 4 34 52 PM" src="https://github.com/user-attachments/assets/2010d381-ed25-4185-a05d-689ec3e04fa6" />
+Prueba de la resta:
+<img width="1600" height="551" alt="WhatsApp Image 2026-10-26 at 5 05 11 PM" src="https://github.com/user-attachments/assets/9f7b78c1-d8b2-4af4-a64e-aedd09310195" />
+<img width="1159" height="223" alt="WhatsApp Image 2026-10-26 at 5 05 40 PM" src="https://github.com/user-attachments/assets/ac07e127-8118-40d5-ac08-5c0ea102ce68" />
 
